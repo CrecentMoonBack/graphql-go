@@ -12,7 +12,7 @@ import (
 
 // 메시지를 저장할 배열과 Mutex를 선언하여 동시성 문제를 방지
 var messages []string
-var mutex sync.Mutex
+var mutex sync.RWMutex
 
 // Define schema
 func defineSchema() graphql.Schema {
@@ -23,13 +23,12 @@ func defineSchema() graphql.Schema {
 			return "Hello, graphql-go!", nil
 		},
 	}
-
 	// Query: getMessages
 	getMessagesField := &graphql.Field{
 		Type: graphql.NewList(graphql.String),
 		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-			mutex.Lock()
-			defer mutex.Unlock()
+			mutex.RLock()
+			defer mutex.RUnlock()
 			return messages, nil
 		},
 	}
